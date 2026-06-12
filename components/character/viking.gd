@@ -5,8 +5,10 @@ extends CharacterBody2D
 
 @export_subgroup("Values")
 @export var goal: Vector2
-@export var movement_speed: float = 120.0
-@export var gravity: float
+@export var movement_speed: float = 60 * 60
+@export var gravity: float = 10.0
+@export var extra_height: float = 64.0
+
 
 var platform_map: Array[Dictionary]
 
@@ -35,20 +37,27 @@ func create_map() -> void:
 
 func _ready() -> void:
 	create_map()
+	var _delta := 60
+	Jump(goal, _delta)
 
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
 	if not is_on_floor():
-		velocity += get_gravity() * delta
+		velocity.y += gravity * delta
 	
-	velocity.x += delta * 20
+	velocity.x = delta * movement_speed
 
 	#print(main_tm.get_cell_tile_data(Vector2(3, 4)))
 
 	move_and_slide()
 
-func Jump(goal_position: Vector2) -> void:
-	_calculate_jump_variables(goal_position)
+func Jump(goal_position: Vector2, delta: float) -> void:
+	_calculate_jump_variables(goal_position, delta)
 
-func _calculate_jump_variables(goal_position: Vector2) -> void:
-	pass
+func _calculate_jump_variables(goal_position: Vector2, delta: float) -> void:
+	var _og_y = position.y
+	var _goal_y = goal_position.y
+	var _height = max(_og_y, _goal_y)
+	var _h_vel = movement_speed / delta
+	gravity = 2*(_height - _og_y) * abs(position.x - goal_position.x)**2 / (_h_vel**2)
+	velocity.y = -2*(_height - _og_y) * abs(position.x - goal_position.x) / (_h_vel)
