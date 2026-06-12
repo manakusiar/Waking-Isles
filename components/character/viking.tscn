@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://b07p5qlq7wisx"]
+
+[ext_resource type="Script" uid="uid://x36xttqe6kot" path="res://components/character/viking.gd" id="1_ct561"]
+[ext_resource type="Texture2D" uid="uid://b7cng5vcj6o8j" path="res://components/character/Viking.png" id="2_xfg84"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ct561"]
+size = Vector2(6, 11)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gl8yi"]
+atlas = ExtResource("2_xfg84")
+region = Rect2(0, 0, 24, 24)
+
+[node name="Viking" type="CharacterBody2D" unique_id=1460771216]
+script = ExtResource("1_ct561")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=114060957]
+position = Vector2(0, 3.5)
+shape = SubResource("RectangleShape2D_ct561")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1060289331]
+texture = SubResource("AtlasTexture_gl8yi")

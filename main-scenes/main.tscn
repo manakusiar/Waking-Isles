@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://tejx253ymr7o"]
+
+[ext_resource type="PackedScene" uid="uid://btasbolm3vsbh" path="res://main-scenes/maps/test_map.tscn" id="1_k85wy"]
+[ext_resource type="Script" uid="uid://6bco7yqvi5ni" path="res://main-scenes/maps.gd" id="1_lm0sw"]
+[ext_resource type="Script" uid="uid://caqhg1fosdwy" path="res://main-scenes/camera_2d.gd" id="3_7jpn6"]
+
+[node name="Main" type="Node" unique_id=65762500]
+
+[node name="MapsContainer" type="SubViewportContainer" parent="." unique_id=1027288755]
+custom_minimum_size = Vector2(640, 360)
+offset_right = 640.0
+offset_bottom = 360.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Maps" type="SubViewport" parent="MapsContainer" unique_id=667513014]
+disable_3d = true
+handle_input_locally = false
+canvas_item_default_texture_filter = 0
+canvas_item_default_texture_repeat = 1
+size = Vector2i(640, 360)
+render_target_update_mode = 4
+script = ExtResource("1_lm0sw")
+
+[node name="TestMap" parent="MapsContainer/Maps" unique_id=1702321755 instance=ExtResource("1_k85wy")]
+
+[node name="Camera2D" type="Camera2D" parent="MapsContainer" unique_id=981544 node_paths=PackedStringArray("Maps")]
+position = Vector2(320, 180)
+zoom = Vector2(2, 2)
+script = ExtResource("3_7jpn6")
+Maps = NodePath("../Maps")
+
+[node name="UI" type="Control" parent="." unique_id=565200629]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
