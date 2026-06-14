@@ -14,10 +14,16 @@ config/name="New Game Project"
 run/main_scene="uid://tejx253ymr7o"
 config/features=PackedStringArray("4.6", "Forward Plus")
 
+[autoload]
+
+PAI="*uid://ca107nqtq3555"
+
 [display]
 
 window/size/viewport_width=640
 window/size/viewport_height=360
+window/size/window_width_override=1280
+window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 
 [physics]

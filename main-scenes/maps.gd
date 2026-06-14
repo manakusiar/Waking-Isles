@@ -12,7 +12,7 @@ var current_scene:
 
 func _ready() -> void:
 	_fetch_current_scene()
-	print("maps lodaed")
+	#print("maps lodaed")
 
 func _fetch_current_scene() -> void:
 	for child in get_children():

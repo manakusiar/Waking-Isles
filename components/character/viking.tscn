@@ -14,8 +14,9 @@ region = Rect2(0, 0, 24, 24)
 script = ExtResource("1_ct561")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=114060957]
-position = Vector2(0, 3.5)
+position = Vector2(0, -6)
 shape = SubResource("RectangleShape2D_ct561")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1060289331]
+position = Vector2(0, -9)
 texture = SubResource("AtlasTexture_gl8yi")
