@@ -4,7 +4,7 @@ var main_grid: Dictionary
 
 const cell_size: Vector2 = Vector2(8, 8)
 const character_offset: Vector2 = Vector2(0, 0.5) * cell_size
-const character_platform_futuresight: int = 3
+const character_platform_futuresight: int = 2
 
 # ==============
 # MAIN FUNCTIONS
@@ -37,15 +37,15 @@ func Reload_Grid(tile_map_array: Array[Node], grid: Dictionary = main_grid) -> v
 							grid[_global_x].append(_global_y)
 	
 	grid.sort()
-	for _x in grid:
-		print(str(_x) + ": " + str(grid[_x]))
+	#for _x in grid:
+		#print(str(_x) + ": " + str(grid[_x]))
 
-# PATH CALCULATORS
+# route CALCULATORS
 
-func Find_Character_Path(character_position: Vector2, goal_position: Vector2, jump_distance: float):
-	return Find_Path(character_position + character_offset, goal_position + character_offset, jump_distance)
+func Find_Character_route(character_position: Vector2, goal_position: Vector2, jump_distance: float):
+	return Find_route(character_position + character_offset, goal_position + character_offset, jump_distance)
 
-func Find_Path(first_position: Vector2, second_position: Vector2, jump_distance: float, future_num: int = 0) -> Array[Dictionary]:
+func Find_route(first_position: Vector2, second_position: Vector2, jump_distance: float, future_num: int = 0) -> Array:
 	# Move positions relative to the grid
 	var _first_cell_pos = round_to_cell_position(first_position)
 	var _second_cell_pos = round_to_cell_position(second_position)
@@ -55,8 +55,25 @@ func Find_Path(first_position: Vector2, second_position: Vector2, jump_distance:
 		_first_cell_pos.y = get_nearest_value_from_array(_first_cell_pos.y, main_grid[_first_cell_pos.x])
 		_second_cell_pos.y = get_nearest_value_from_array(_second_cell_pos.y, main_grid[_second_cell_pos.x])
 		
-		var _movement_direction = sign(_second_cell_pos.x - _first_cell_pos.x)
-	return []
+		var _route = [[], 0.0]
+		var _final_pos = _first_cell_pos
+		var _i = 0
+		while(_final_pos != second_position):
+			var _new_first_position: Vector2 = _final_pos
+			var _new_route = search_route_recursive(_new_first_position, second_position, jump_distance, _i != 0)
+			#print("New route: ", _new_route)
+			_final_pos = _new_route[0][-1][1]
+			
+			#_new_route[0].pop_front()
+			_route[0].append_array(_new_route[0])
+			_route[1] += _new_route[1]
+			
+			#print("Full route: ", _route, "\n")
+			
+			_i += 1
+			
+		return _route
+	return [[], 0]
 
 # ================
 # HELPER FUNCTIONS
@@ -64,27 +81,79 @@ func Find_Path(first_position: Vector2, second_position: Vector2, jump_distance:
 
 # PATHFINDING
 
-func search_path_recursive(first_pos: Vector2, second_pos: Vector2):
+func search_route_recursive(first_pos: Vector2, second_pos: Vector2, jump_distance: float, skip_first: bool = true, future_num: int = 0) -> Array:
 	var _movement_direction = sign(second_pos.x - first_pos.x)
-	var _current_pos = first_pos
 	var _grid_keys = main_grid.keys()
-	var _current_path = []
-	if _movement_direction in [-1, 1]:
-		var _next_cell_pos = _current_pos
-		while(main_grid.has(_next_cell_pos) and _next_cell_pos.y in main_grid[_next_cell_pos]):
-			_next_cell_pos = _current_pos + Vector2(cell_size.x * _movement_direction, 0)
+	var _current_route = [[], 0]
+	var _distance: float = 0
+	
+	if int(_movement_direction) in [-1, 1]:
+		# Find the end of the current platform
+		var _next_cell_pos = first_pos
+		var _movement_distance = cell_size.x * _movement_direction
 		
-		print("EMPTY SLOT FOUND AT: " + str(_next_cell_pos))
+		while(main_grid.has(_next_cell_pos.x + _movement_distance) and _next_cell_pos.y in main_grid[_next_cell_pos.x + _movement_distance]):
+			_next_cell_pos += Vector2(_movement_distance, 0)
+			_distance += cell_size.x
+			if _next_cell_pos == second_pos:
+				return [[[first_pos, _next_cell_pos]], _distance]
 		
-		var _nex_cell_key_num: int = _grid_keys.bsearch(_next_cell_pos.x)
-		var _found_platform_x = _grid_keys[_nex_cell_key_num + 1]
-		var _found_platforms_y = main_grid[_found_platform_x]
-		for _platform_y in _found_platforms_y:
-			search_path_recursive(path_num + 1, _found_platform_x, _platform_y)
+		# Skip appending the first platform, when it's be a duplicate
+		if skip_first and future_num == 0:
+			_current_route = get_emtpy_route()
+		else:
+			_current_route = create_route(first_pos, _next_cell_pos, _distance)
+		
+		# End when is final loop
+		if future_num >= character_platform_futuresight:
+			return _current_route
+		
+		var _next_cell_key_num: int = _grid_keys.bsearch(_next_cell_pos.x)
+		var _jump_cells = floor(jump_distance / cell_size.x)
+		var _found_platforms = []
+		
+		var _lowest_distance: float = INF
+		var _lowest_dist_route: Array = []
+		
+		for i in range(_jump_cells-1):
+			var _platform_x = _grid_keys[_next_cell_key_num + i + 1]
+			for _platform_y in main_grid[_platform_x]:
+				if !_found_platforms.has(_platform_y):
+					_found_platforms.append(_platform_y)
+					
+					var _platform_first_position = Vector2(_platform_x, _platform_y)
+					var _route = search_route_recursive(_platform_first_position, second_pos, jump_distance, skip_first, future_num + 1)
+					var _route_dist = _route[1] + _next_cell_pos.distance_to(_platform_first_position)
+					if _route_dist < _lowest_distance:
+						_lowest_distance = _route_dist
+						_lowest_dist_route = _route[0]
+		
+		if _lowest_distance != INF:
+			add_platforms_to_route(_current_route, _lowest_dist_route, _lowest_distance)
+		
+		return _current_route
 		
 	else:
-		push_error("Invalid movement direction (recursive pathfinding)")
-	
+		push_error("Invalid movement direction (" + str(_movement_direction) + ")")
+	return get_emtpy_route()
+
+# ROUTE FUNCTIONS
+
+func get_emtpy_route() -> Array:
+	return [[], 0]
+
+func create_route(first_position, second_position, distance):
+	var _route = get_emtpy_route()
+	add_platform_to_route(_route, first_position, second_position, distance)
+	return _route
+
+func add_platform_to_route(route, first_position, second_position, distance) -> void:
+	route[0].append([first_position, second_position])
+	route[1] += distance
+
+func add_platforms_to_route(route: Array, platforms: Array, distance: float) -> void:
+	route[0].append_array(platforms)
+	route[1] += distance
 
 # WORKING WITH HEIGHT ARRAYS
 
