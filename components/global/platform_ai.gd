@@ -45,7 +45,7 @@ func Reload_Grid(tile_map_array: Array[Node], grid: Dictionary = main_grid) -> v
 func Find_Character_route(character_position: Vector2, goal_position: Vector2, jump_distance: float):
 	return Find_route(character_position + character_offset, goal_position + character_offset, jump_distance)
 
-func Find_route(first_position: Vector2, second_position: Vector2, jump_distance: float, future_num: int = 0) -> Array:
+func Find_route(first_position: Vector2, second_position: Vector2, jump_distance: float) -> Array:
 	# Move positions relative to the grid
 	var _first_cell_pos = round_to_cell_position(first_position)
 	var _second_cell_pos = round_to_cell_position(second_position)

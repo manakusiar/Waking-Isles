@@ -86,14 +86,15 @@ func jump_to(goal: Vector2, time: float) -> void:
 func jump_to_distance(goal: Vector2) -> void:
 	var dx = goal.x - global_position.x
 	var dy = goal.y - global_position.y
-	var horizontal_dist = abs(dx)
 
 	# From: dy = vy*t + 0.5*g*t^2  and  dx = vx*t  where vx = movement_speed * 1.25
 	# Rearranging: 0.5*g*t^2 + (dy/dx * vx)*t - dy = 0
 	
 	var vx = movement_speed * 1.25
 	var a = 0.5 * gravity
-	var b = -(dy / dx) * vx if dx != 0 else 0
+	var b = 0.0
+	if dx != 0:
+		b = -(dy / dx) * vx
 	var c = -dy
 	
 	var discriminant = b * b - 4 * a * c
