@@ -39,3 +39,4 @@ version_control/autoload_on_startup=true
 
 textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
+environment/defaults/default_clear_color=Color(0.30588236, 0.84313726, 0.94509804, 1)

@@ -61,7 +61,7 @@ func Find_route(first_position: Vector2, second_position: Vector2, jump_distance
 		while(_final_pos != second_position):
 			var _new_first_position: Vector2 = _final_pos
 			var _new_route = search_route_recursive(_new_first_position, second_position, jump_distance, _i != 0)
-			#print("New route: ", _new_route)
+			print("New route: ", _new_route)
 			_final_pos = _new_route[0][-1][1]
 			
 			#_new_route[0].pop_front()
